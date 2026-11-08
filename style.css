@@ -172,3 +172,13 @@ body.note-modal-open{overflow:hidden}
 .note-card strong{color:#302b2b}
 .note-card:active{transform:scale(.985)}
 .note-card:focus-visible{outline:3px solid #a6535c;outline-offset:5px}
+
+
+/* Explicit visible modal state and mobile-friendly note card controls */
+.note-modal{display:grid;z-index:9999}
+.note-modal[aria-hidden="true"]{opacity:0;visibility:hidden;pointer-events:none}
+.note-modal[aria-hidden="false"]{opacity:1;visibility:visible;pointer-events:auto}
+.note-modal-paper{z-index:1;max-height:85vh;overflow:auto}
+.note-card{cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:0}
+.note-card i{font-style:normal;text-decoration:underline;text-underline-offset:6px}
+#surprise-message.show{display:block;animation:pop .35s ease both}
