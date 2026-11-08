@@ -13,10 +13,10 @@ const dishes=[
 {id:12,name:"Sunday Pancakes",category:"sweet",price:75,emoji:"🥞",tag:"brunch mood",desc:"Fluffy stacks with berries and maple syrup."}
 ];
 const cart={};const money=n=>"R"+n;const grid=document.querySelector("#menu-grid");const count=document.querySelector("#cart-count");
-function renderMenu(filter="all"){grid.innerHTML=dishes.filter(d=>filter==="all"||d.category===filter).map(d=>\`<article class="food-card"><div class="food-image"><span>\${d.emoji}</span><small class="food-tag">\${d.tag}</small></div><div class="food-info"><div class="food-title"><h3>\${d.name}</h3><strong>\${money(d.price)}</strong></div><p>\${d.desc}</p><button class="add-button" data-add="\${d.id}">＋ Add to my tray</button></div></article>\`).join("");}
+function renderMenu(filter="all"){grid.innerHTML=dishes.filter(d=>filter==="all"||d.category===filter).map(d=>`<article class="food-card"><div class="food-image"><span>${d.emoji}</span><small class="food-tag">${d.tag}</small></div><div class="food-info"><div class="food-title"><h3>${d.name}</h3><strong>${money(d.price)}</strong></div><p>${d.desc}</p><button class="add-button" data-add="${d.id}">＋ Add to my tray</button></div></article>`).join("");}
 renderMenu();
 document.querySelector("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-filter]");if(!b)return;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));renderMenu(b.dataset.filter)});
-function renderCart(){const entries=Object.entries(cart).filter(([,q])=>q>0);const total=entries.reduce((s,[id,q])=>s+dishes.find(d=>d.id===+id).price*q,0);count.textContent=entries.reduce((s,[,q])=>s+q,0);document.querySelector("#cart-total").textContent=money(total);document.querySelector("#cart-items").innerHTML=entries.length?entries.map(([id,q])=>{const d=dishes.find(x=>x.id===+id);return \`<div class="cart-line"><span class="mini">\${d.emoji}</span><div><strong>\${d.name}</strong><small>\${money(d.price)} each</small></div><div class="qty"><button data-qty="\${id}" data-delta="-1">−</button><span>\${q}</span><button data-qty="\${id}" data-delta="1">+</button></div></div>\`}).join(""):'<p class="empty">Your tray is empty. This is a tragedy. Add snacks.</p>';}
+function renderCart(){const entries=Object.entries(cart).filter(([,q])=>q>0);const total=entries.reduce((s,[id,q])=>s+dishes.find(d=>d.id===+id).price*q,0);count.textContent=entries.reduce((s,[,q])=>s+q,0);document.querySelector("#cart-total").textContent=money(total);document.querySelector("#cart-items").innerHTML=entries.length?entries.map(([id,q])=>{const d=dishes.find(x=>x.id===+id);return `<div class="cart-line"><span class="mini">${d.emoji}</span><div><strong>${d.name}</strong><small>${money(d.price)} each</small></div><div class="qty"><button data-qty="${id}" data-delta="-1">−</button><span>${q}</span><button data-qty="${id}" data-delta="1">+</button></div></div>`}).join(""):'<p class="empty">Your tray is empty. This is a tragedy. Add snacks.</p>';}
 function toast(msg){const t=document.querySelector("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2100)}
 grid.addEventListener("click",e=>{const b=e.target.closest("[data-add]");if(!b)return;const id=+b.dataset.add;cart[id]=(cart[id]||0)+1;renderCart();toast("YUM! Added to your party tray 🎉")});
 document.querySelector("#cart-items").addEventListener("click",e=>{const b=e.target.closest("[data-qty]");if(!b)return;const id=b.dataset.qty;cart[id]=(cart[id]||0)+ +b.dataset.delta;if(cart[id]<=0)delete cart[id];renderCart()});
@@ -24,10 +24,10 @@ const cartPanel=document.querySelector("#cart"),overlay=document.querySelector("
 document.querySelector("#open-cart").onclick=openCart;document.querySelector("#close-cart").onclick=closeCart;overlay.onclick=closeCart;
 document.querySelector("#checkout").onclick=()=>{if(!Object.keys(cart).length){toast("Your tray is empty. Feed it. 🍟");return}Object.keys(cart).forEach(k=>delete cart[k]);renderCart();closeCart();toast("Order sent! Birthday chefs, assemble! 🍳")};
 const dateInput=document.querySelector('input[name="date"]');const today=new Date();dateInput.min=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
-document.querySelector("#booking-form").addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.target);document.querySelector("#booking-message").textContent=\`You're on the list, \${f.get("name")}! Table for \${f.get("guests")} at \${f.get("time")} requested. Let the party begin! 🎈 (Demo only)\`;e.target.reset();dateInput.min=new Date().toISOString().slice(0,10)});
+document.querySelector("#booking-form").addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.target);document.querySelector("#booking-message").textContent=`You're on the list, ${f.get("name")}! Table for ${f.get("guests")} at ${f.get("time")} requested. Let the party begin! 🎈 (Demo only)`;e.target.reset();dateInput.min=new Date().toISOString().slice(0,10)});
 const surprises=["Your next year will be sprinkled with good things. ✨","You deserve the biggest slice. No arguments. 🍰","A surprise is looking for you. Keep being wonderful. 🎁","Today's forecast: 100% chance of cake. 🎂","Your birthday superpower is making people smile. 💖"];
 document.querySelector("#surprise").onclick=()=>{const box=document.querySelector("#surprise-message");box.textContent=surprises[Math.floor(Math.random()*surprises.length)];box.animate([{opacity:0,transform:"translateY(10px) scale(.9)"},{opacity:1,transform:"translateY(0) scale(1)"}],{duration:450});confettiBurst(35)};
-function confettiBurst(amount=45){const colors=["#f26b8a","#ffd45c","#8c65b5","#6b9b75","#ff9c45"];for(let i=0;i<amount;i++){const bit=document.createElement("span");bit.textContent=["✦","•","♥","✧"][Math.floor(Math.random()*4)];bit.style.cssText=\`position:fixed;z-index:50;left:\${Math.random()*100}vw;top:-20px;color:\${colors[Math.floor(Math.random()*colors.length)]};font-size:\${12+Math.random()*18}px;pointer-events:none;\`;document.body.appendChild(bit);const drift=(Math.random()-.5)*240;const duration=1300+Math.random()*1300;bit.animate([{transform:"translate3d(0,0,0) rotate(0deg)",opacity:1},{transform:\`translate3d(\${drift}px,110vh,0) rotate(720deg)\`,opacity:.2}],{duration,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>bit.remove()}}
+function confettiBurst(amount=45){const colors=["#f26b8a","#ffd45c","#8c65b5","#6b9b75","#ff9c45"];for(let i=0;i<amount;i++){const bit=document.createElement("span");bit.textContent=["✦","•","♥","✧"][Math.floor(Math.random()*4)];bit.style.cssText=`position:fixed;z-index:50;left:${Math.random()*100}vw;top:-20px;color:${colors[Math.floor(Math.random()*colors.length)]};font-size:${12+Math.random()*18}px;pointer-events:none;`;document.body.appendChild(bit);const drift=(Math.random()-.5)*240;const duration=1300+Math.random()*1300;bit.animate([{transform:"translate3d(0,0,0) rotate(0deg)",opacity:1},{transform:`translate3d(${drift}px,110vh,0) rotate(720deg)`,opacity:.2}],{duration,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>bit.remove()}}
 document.querySelector("#blow-candles").addEventListener("click",()=>{const cake=document.querySelector("#big-cake"),message=document.querySelector("#wish-message"),button=document.querySelector("#blow-candles");if(!cake.classList.contains("blown")){cake.classList.add("blown");message.innerHTML='<div class="wish-pop">✨ YOUR WISH IS ON ITS WAY! ✨<br>May it come true. 💖</div>';button.textContent="🎂 Light the candles again";confettiBurst(65)}else{cake.classList.remove("blown");message.textContent="Candles relit! Make another wish. 🤫";button.textContent="💨 Blow out the candles"}});
 renderCart();
 
@@ -99,15 +99,6 @@ try{
   soundButton.textContent="♪ Tap for sound";
   document.addEventListener("pointerdown",unlockSound,{once:true});
 }
-let soundToggleClicks=0;
-soundButton.addEventListener("click",()=>{
-  soundToggleClicks++;
-  soundEnabled=soundToggleClicks%2===1;
-  soundButton.setAttribute("aria-pressed",String(soundEnabled));
-  soundButton.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";
-  if(soundEnabled){unlockSound()} 
-});
-
 // Reliable birthday interactions: direct button bindings, independent of section delegation.
 (function(){
   const modal=document.getElementById("note-modal");
@@ -153,84 +144,3 @@ soundButton.addEventListener("click",()=>{
     };
   }
 })();
-
-// Final interaction safety net: handle key birthday/cart controls at the document level.
-document.addEventListener("click",function(event){
-  const target=event.target.closest("button,[data-note-close]");
-  if(!target)return;
-
-  const card=target.closest(".note-card[data-note]");
-  if(card){
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const modal=document.getElementById("note-modal");
-    if(!modal)return;
-    const title=modal.querySelector("#note-modal-title");
-    const message=modal.querySelector("#note-modal-message");
-    const label=modal.querySelector("#note-modal-label");
-    if(title)title.textContent=card.querySelector("strong")?.textContent||"A little note";
-    if(message)message.textContent=card.dataset.note||"A little reminder, made just for you. ♡";
-    if(label)label.textContent=card.querySelector("span")?.textContent||"A LITTLE NOTE FOR YOU";
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden","false");
-    document.body.classList.add("note-modal-open");
-    return;
-  }
-
-  if(target.matches("[data-note-close]")){
-    event.preventDefault();event.stopImmediatePropagation();
-    const modal=document.getElementById("note-modal");
-    if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
-    document.body.classList.remove("note-modal-open");
-    return;
-  }
-
-  if(target.id==="surprise"){
-    event.preventDefault();event.stopImmediatePropagation();
-    const box=document.getElementById("surprise-message");
-    const wishes=["Your next year will be sprinkled with good things. ✨","You deserve the biggest slice. No arguments. 🍰","A surprise is looking for you. Keep being wonderful. 🎁","Today's forecast: 100% chance of cake. 🎂","Your birthday superpower is making people smile. 💖"];
-    if(box){box.textContent=wishes[Math.floor(Math.random()*wishes.length)];box.classList.add("show");}
-    if(typeof confettiBurst==="function")confettiBurst(45);
-    return;
-  }
-
-  if(target.id==="blow-candles"){
-    event.preventDefault();event.stopImmediatePropagation();
-    const cake=document.getElementById("big-cake"),message=document.getElementById("wish-message");
-    if(!cake||!message)return;
-    const blown=cake.classList.toggle("blown");
-    message.textContent=blown?"✨ YOUR WISH IS ON ITS WAY! May it come true. 💖":"Candles relit! Make another wish. 🤫";
-    target.textContent=blown?"🎂 Light the candles again":"💨 Blow out the candles";
-    if(blown&&typeof confettiBurst==="function")confettiBurst(55);
-    return;
-  }
-
-  if(target.id==="open-cart"){
-    event.preventDefault();event.stopImmediatePropagation();
-    document.getElementById("cart")?.classList.add("open");
-    document.getElementById("overlay")?.classList.add("show");
-    return;
-  }
-  if(target.id==="close-cart"||target.id==="overlay"){
-    event.preventDefault();event.stopImmediatePropagation();
-    document.getElementById("cart")?.classList.remove("open");
-    document.getElementById("overlay")?.classList.remove("show");
-    return;
-  }
-  if(target.id==="sound-toggle"){
-    event.preventDefault();event.stopImmediatePropagation();
-    soundEnabled=!soundEnabled;
-    target.setAttribute("aria-pressed",String(soundEnabled));
-    target.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";
-    if(soundEnabled){try{audio();chime();}catch(error){}}
-    return;
-  }
-});
-document.addEventListener("keydown",function(event){
-  if(event.key!=="Escape")return;
-  const modal=document.getElementById("note-modal");
-  if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
-  document.body.classList.remove("note-modal-open");
-  document.getElementById("cart")?.classList.remove("open");
-  document.getElementById("overlay")?.classList.remove("show");
-});
