@@ -108,4 +108,29 @@ soundButton.addEventListener("click",()=>{
   if(soundEnabled){unlockSound()} 
 });
 
-document.querySelectorAll("[data-note]").forEach(card=>{card.addEventListener("click",()=>{const reveal=document.querySelector("#note-reveal");reveal.textContent=card.dataset.note;reveal.classList.add("show");reveal.scrollIntoView({behavior:"smooth",block:"nearest"});if(typeof chime==="function"&&soundEnabled)chime()})});
+const noteModal=document.querySelector("#note-modal");
+const noteTitle=document.querySelector("#note-modal-title");
+const noteMessage=document.querySelector("#note-modal-message");
+const noteLabel=document.querySelector("#note-modal-label");
+let lastNoteTrigger=null;
+function closeNote(){
+  noteModal.classList.remove("open");
+  noteModal.setAttribute("aria-hidden","true");
+  document.body.classList.remove("note-modal-open");
+  if(lastNoteTrigger)lastNoteTrigger.focus();
+}
+document.querySelectorAll("[data-note]").forEach((card,index)=>{
+  card.addEventListener("click",()=>{
+    lastNoteTrigger=card;
+    noteTitle.textContent=card.querySelector("strong").textContent;
+    noteMessage.textContent=card.dataset.note;
+    noteLabel.textContent=card.querySelector("span").textContent;
+    noteModal.classList.add("open");
+    noteModal.setAttribute("aria-hidden","false");
+    document.body.classList.add("note-modal-open");
+    noteModal.querySelector(".note-modal-close").focus();
+    if(soundEnabled)chime();
+  });
+});
+noteModal.querySelectorAll("[data-note-close]").forEach(button=>button.addEventListener("click",closeNote));
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&noteModal.classList.contains("open"))closeNote();});
