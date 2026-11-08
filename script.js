@@ -153,3 +153,84 @@ soundButton.addEventListener("click",()=>{
     };
   }
 })();
+
+// Final interaction safety net: handle key birthday/cart controls at the document level.
+document.addEventListener("click",function(event){
+  const target=event.target.closest("button,[data-note-close]");
+  if(!target)return;
+
+  const card=target.closest(".note-card[data-note]");
+  if(card){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const modal=document.getElementById("note-modal");
+    if(!modal)return;
+    const title=modal.querySelector("#note-modal-title");
+    const message=modal.querySelector("#note-modal-message");
+    const label=modal.querySelector("#note-modal-label");
+    if(title)title.textContent=card.querySelector("strong")?.textContent||"A little note";
+    if(message)message.textContent=card.dataset.note||"A little reminder, made just for you. ♡";
+    if(label)label.textContent=card.querySelector("span")?.textContent||"A LITTLE NOTE FOR YOU";
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden","false");
+    document.body.classList.add("note-modal-open");
+    return;
+  }
+
+  if(target.matches("[data-note-close]")){
+    event.preventDefault();event.stopImmediatePropagation();
+    const modal=document.getElementById("note-modal");
+    if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
+    document.body.classList.remove("note-modal-open");
+    return;
+  }
+
+  if(target.id==="surprise"){
+    event.preventDefault();event.stopImmediatePropagation();
+    const box=document.getElementById("surprise-message");
+    const wishes=["Your next year will be sprinkled with good things. ✨","You deserve the biggest slice. No arguments. 🍰","A surprise is looking for you. Keep being wonderful. 🎁","Today's forecast: 100% chance of cake. 🎂","Your birthday superpower is making people smile. 💖"];
+    if(box){box.textContent=wishes[Math.floor(Math.random()*wishes.length)];box.classList.add("show");}
+    if(typeof confettiBurst==="function")confettiBurst(45);
+    return;
+  }
+
+  if(target.id==="blow-candles"){
+    event.preventDefault();event.stopImmediatePropagation();
+    const cake=document.getElementById("big-cake"),message=document.getElementById("wish-message");
+    if(!cake||!message)return;
+    const blown=cake.classList.toggle("blown");
+    message.textContent=blown?"✨ YOUR WISH IS ON ITS WAY! May it come true. 💖":"Candles relit! Make another wish. 🤫";
+    target.textContent=blown?"🎂 Light the candles again":"💨 Blow out the candles";
+    if(blown&&typeof confettiBurst==="function")confettiBurst(55);
+    return;
+  }
+
+  if(target.id==="open-cart"){
+    event.preventDefault();event.stopImmediatePropagation();
+    document.getElementById("cart")?.classList.add("open");
+    document.getElementById("overlay")?.classList.add("show");
+    return;
+  }
+  if(target.id==="close-cart"||target.id==="overlay"){
+    event.preventDefault();event.stopImmediatePropagation();
+    document.getElementById("cart")?.classList.remove("open");
+    document.getElementById("overlay")?.classList.remove("show");
+    return;
+  }
+  if(target.id==="sound-toggle"){
+    event.preventDefault();event.stopImmediatePropagation();
+    soundEnabled=!soundEnabled;
+    target.setAttribute("aria-pressed",String(soundEnabled));
+    target.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";
+    if(soundEnabled){try{audio();chime();}catch(error){}}
+    return;
+  }
+});
+document.addEventListener("keydown",function(event){
+  if(event.key!=="Escape")return;
+  const modal=document.getElementById("note-modal");
+  if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
+  document.body.classList.remove("note-modal-open");
+  document.getElementById("cart")?.classList.remove("open");
+  document.getElementById("overlay")?.classList.remove("show");
+});
