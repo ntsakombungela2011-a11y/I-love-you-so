@@ -27,5 +27,40 @@
 <footer><a class="brand" href="#"><span class="brand-mark">🍒</span><span>the birthday table<small>YOUR VERY OWN PARTY RESTAURANT</small></span></a><span>Made with a full heart & a suspicious amount of frosting.</span><a href="#">Back to the top ↑</a></footer>
 <div class="overlay" id="overlay"></div><aside class="cart" id="cart" aria-label="Your order"><div class="cart-head"><div><p class="eyebrow">THE GOOD STUFF 🎉</p><h2>My party tray</h2></div><button class="close" id="close-cart" aria-label="Close">×</button></div><div id="cart-items" class="cart-items"><p class="empty">Your tray is empty. This is a tragedy. Add snacks.</p></div><div class="cart-bottom"><div class="total"><span>Party total</span><strong id="cart-total">R0</strong></div><button class="button dark full" id="checkout">SEND TO THE KITCHEN 🍳</button><small>Demo checkout. No money changes hands.</small></div></aside>
 <div class="toast" id="toast" role="status"></div>
-<script src="script.js"></script>
+<script src="script.js?v=notes-fullscreen-3"></script>
+<script>
+(function () {
+  function setupBirthdayNotes() {
+    const modal = document.getElementById("note-modal");
+    if (!modal) return;
+    const title = document.getElementById("note-modal-title");
+    const message = document.getElementById("note-modal-message");
+    const label = document.getElementById("note-modal-label");
+    function closeNote() {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("note-modal-open");
+    }
+    document.querySelectorAll(".note-card[data-note]").forEach(function (card) {
+      card.addEventListener("click", function (event) {
+        event.preventDefault();
+        title.textContent = card.querySelector("strong")?.textContent || "A little note";
+        message.textContent = card.getAttribute("data-note") || "";
+        label.textContent = card.querySelector("span")?.textContent || "A LITTLE NOTE FOR YOU";
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("note-modal-open");
+      });
+    });
+    modal.querySelectorAll("[data-note-close]").forEach(function (button) {
+      button.addEventListener("click", closeNote);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeNote();
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupBirthdayNotes);
+  else setupBirthdayNotes();
+})();
+</script>
 </body></html>
