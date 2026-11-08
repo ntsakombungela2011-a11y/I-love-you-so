@@ -31,16 +31,62 @@ function confettiBurst(amount=45){const colors=["#f26b8a","#ffd45c","#8c65b5","#
 document.querySelector("#blow-candles").addEventListener("click",()=>{const cake=document.querySelector("#big-cake"),message=document.querySelector("#wish-message"),button=document.querySelector("#blow-candles");if(!cake.classList.contains("blown")){cake.classList.add("blown");message.innerHTML='<div class="wish-pop">✨ YOUR WISH IS ON ITS WAY! ✨<br>May it come true. 💖</div>';button.textContent="🎂 Light the candles again";confettiBurst(65)}else{cake.classList.remove("blown");message.textContent="Candles relit! Make another wish. 🤫";button.textContent="💨 Blow out the candles"}});
 renderCart();
 
-/* Small, original sound effects. Audio only starts after the visitor turns it on. */
+/* Sound starts only after a deliberate tap, as mobile browsers block autoplay. */
 const soundButton=document.querySelector("#sound-toggle");
 let soundEnabled=false;
 let audioContext=null;
-function audio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;audioContext=new Audio()}if(audioContext.state==="suspended")audioContext.resume();return audioContext}
-function tone(freq=520,duration=.12,wave="sine",volume=.045,slide=0){if(!soundEnabled)return;const ctx=audio();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;osc.type=wave;osc.frequency.setValueAtTime(freq,now);if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(60,freq+slide),now+duration);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(volume,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+duration+.02)}
-function chime(){tone(660,.13,"sine",.035);setTimeout(()=>tone(880,.2,"sine",.03),95)}
+function audio(){
+  if(!audioContext){
+    const Audio=window.AudioContext||window.webkitAudioContext;
+    if(!Audio)return null;
+    audioContext=new Audio();
+  }
+  return audioContext;
+}
+function tone(freq=520,duration=.12,wave="sine",volume=.04,slide=0){
+  if(!soundEnabled)return;
+  const ctx=audio();
+  if(!ctx)return;
+  if(ctx.state==="suspended")ctx.resume();
+  const osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+  osc.type=wave;
+  osc.frequency.setValueAtTime(freq,now);
+  if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(60,freq+slide),now+duration);
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(volume,now+.012);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(now);osc.stop(now+duration+.02);
+}
+function chime(){
+  tone(660,.13,"sine",.035);
+  setTimeout(()=>tone(880,.2,"sine",.03),95);
+}
 function softPop(){tone(420,.09,"triangle",.025,240)}
-function partySound(){tone(523,.18,"sine",.035);setTimeout(()=>tone(659,.18,"sine",.035),100);setTimeout(()=>tone(784,.28,"sine",.04),210)}
-soundButton.addEventListener("click",()=>{soundEnabled=!soundEnabled;soundButton.setAttribute("aria-pressed",String(soundEnabled));soundButton.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";if(soundEnabled){audio();chime()}});
+function partySound(){
+  tone(523,.18,"sine",.035);
+  setTimeout(()=>tone(659,.18,"sine",.035),100);
+  setTimeout(()=>tone(784,.28,"sine",.04),210);
+}
+soundButton.addEventListener("click",async()=>{
+  if(!soundEnabled){
+    const ctx=audio();
+    if(!ctx){soundButton.textContent="Audio unavailable";return;}
+    try{
+      await ctx.resume();
+      soundEnabled=true;
+      soundButton.setAttribute("aria-pressed","true");
+      soundButton.textContent="♪ Sound on";
+      chime();
+    }catch(error){
+      soundButton.textContent="♪ Tap again";
+    }
+  }else{
+    soundEnabled=false;
+    soundButton.setAttribute("aria-pressed","false");
+    soundButton.textContent="♪ Sound off";
+  }
+});
 document.querySelector("#menu-grid").addEventListener("click",e=>{if(e.target.closest("[data-add]"))softPop()});
 document.querySelector("#open-cart").addEventListener("click",()=>{if(soundEnabled)tone(390,.09,"triangle",.025)});
 document.querySelector("#checkout").addEventListener("click",()=>{if(soundEnabled&&Object.keys(cart).length)partySound()});
@@ -69,36 +115,7 @@ renderMenu=function(filter="all"){
 };
 renderMenu();
 
-// Try sound on arrival. Browsers may block it until the visitor interacts.
-soundEnabled=true;
-soundButton.setAttribute("aria-pressed","true");
-soundButton.textContent="♪ Sound on";
-let soundUnlocked=false;
-function unlockSound(){
-  if(soundUnlocked)return;
-  const ctx=audio();
-  if(ctx){
-    ctx.resume().then(()=>{
-      soundUnlocked=true;
-      soundButton.textContent="♪ Sound on";
-      partySound();
-    }).catch(()=>{soundButton.textContent="♪ Tap for sound"});
-  }
-}
-try{
-  const ctx=audio();
-  if(ctx && ctx.state==="running"){
-    soundUnlocked=true;
-    partySound();
-  }else{
-    soundButton.textContent="♪ Tap for sound";
-    document.addEventListener("pointerdown",unlockSound,{once:true});
-    document.addEventListener("keydown",unlockSound,{once:true});
-  }
-}catch(e){
-  soundButton.textContent="♪ Tap for sound";
-  document.addEventListener("pointerdown",unlockSound,{once:true});
-}
+// No autoplay attempt here: sound is enabled by the visitor using the sound button.
 // Reliable birthday interactions: direct button bindings, independent of section delegation.
 (function(){
   const modal=document.getElementById("note-modal");
