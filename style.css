@@ -156,3 +156,19 @@ footer>span,footer>a:last-child{font:10px 'DM Sans',sans-serif}
 body.note-modal-open{overflow:hidden}
 .note-card:focus-visible,.note-modal-close:focus-visible{outline:3px solid #a6535c;outline-offset:4px}
 @media(prefers-reduced-motion:reduce){.note-modal,.note-modal-paper{transition:none}}
+
+
+/* Make the full note card feel and behave like a button on mobile Safari */
+.note-card{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  color:#302b2b;
+  font-family:Georgia,'Times New Roman',serif;
+  -webkit-tap-highlight-color:rgba(169,78,85,.16);
+  touch-action:manipulation;
+}
+.note-card span,.note-card i{color:#65584f}
+.note-card strong{color:#302b2b}
+.note-card:active{transform:scale(.985)}
+.note-card:focus-visible{outline:3px solid #a6535c;outline-offset:5px}
