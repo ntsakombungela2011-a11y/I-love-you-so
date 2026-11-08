@@ -113,24 +113,29 @@ const noteTitle=document.querySelector("#note-modal-title");
 const noteMessage=document.querySelector("#note-modal-message");
 const noteLabel=document.querySelector("#note-modal-label");
 let lastNoteTrigger=null;
+function openNote(card){
+  lastNoteTrigger=card;
+  noteTitle.textContent=card.querySelector("strong").textContent;
+  noteMessage.textContent=card.dataset.note;
+  noteLabel.textContent=card.querySelector("span").textContent;
+  noteModal.classList.add("open");
+  noteModal.setAttribute("aria-hidden","false");
+  document.body.classList.add("note-modal-open");
+  if(soundEnabled)chime();
+  noteModal.querySelector(".note-modal-close").focus();
+}
 function closeNote(){
   noteModal.classList.remove("open");
   noteModal.setAttribute("aria-hidden","true");
   document.body.classList.remove("note-modal-open");
   if(lastNoteTrigger)lastNoteTrigger.focus();
 }
-document.querySelectorAll("[data-note]").forEach((card,index)=>{
-  card.addEventListener("click",()=>{
-    lastNoteTrigger=card;
-    noteTitle.textContent=card.querySelector("strong").textContent;
-    noteMessage.textContent=card.dataset.note;
-    noteLabel.textContent=card.querySelector("span").textContent;
-    noteModal.classList.add("open");
-    noteModal.setAttribute("aria-hidden","false");
-    document.body.classList.add("note-modal-open");
-    noteModal.querySelector(".note-modal-close").focus();
-    if(soundEnabled)chime();
-  });
+// Delegation makes the entire coloured card reliably clickable.
+document.querySelector("#little-notes").addEventListener("click",event=>{
+  const card=event.target.closest(".note-card[data-note]");
+  if(card)openNote(card);
 });
 noteModal.querySelectorAll("[data-note-close]").forEach(button=>button.addEventListener("click",closeNote));
-document.addEventListener("keydown",event=>{if(event.key==="Escape"&&noteModal.classList.contains("open"))closeNote();});
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&noteModal.classList.contains("open"))closeNote();
+});
