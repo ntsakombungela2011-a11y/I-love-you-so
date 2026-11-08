@@ -30,3 +30,20 @@ document.querySelector("#surprise").onclick=()=>{const box=document.querySelecto
 function confettiBurst(amount=45){const colors=["#f26b8a","#ffd45c","#8c65b5","#6b9b75","#ff9c45"];for(let i=0;i<amount;i++){const bit=document.createElement("span");bit.textContent=["✦","•","♥","✧"][Math.floor(Math.random()*4)];bit.style.cssText=\`position:fixed;z-index:50;left:\${Math.random()*100}vw;top:-20px;color:\${colors[Math.floor(Math.random()*colors.length)]};font-size:\${12+Math.random()*18}px;pointer-events:none;\`;document.body.appendChild(bit);const drift=(Math.random()-.5)*240;const duration=1300+Math.random()*1300;bit.animate([{transform:"translate3d(0,0,0) rotate(0deg)",opacity:1},{transform:\`translate3d(\${drift}px,110vh,0) rotate(720deg)\`,opacity:.2}],{duration,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>bit.remove()}}
 document.querySelector("#blow-candles").addEventListener("click",()=>{const cake=document.querySelector("#big-cake"),message=document.querySelector("#wish-message"),button=document.querySelector("#blow-candles");if(!cake.classList.contains("blown")){cake.classList.add("blown");message.innerHTML='<div class="wish-pop">✨ YOUR WISH IS ON ITS WAY! ✨<br>May it come true. 💖</div>';button.textContent="🎂 Light the candles again";confettiBurst(65)}else{cake.classList.remove("blown");message.textContent="Candles relit! Make another wish. 🤫";button.textContent="💨 Blow out the candles"}});
 renderCart();
+
+/* Small, original sound effects. Audio only starts after the visitor turns it on. */
+const soundButton=document.querySelector("#sound-toggle");
+let soundEnabled=false;
+let audioContext=null;
+function audio(){if(!audioContext){const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return null;audioContext=new Audio()}if(audioContext.state==="suspended")audioContext.resume();return audioContext}
+function tone(freq=520,duration=.12,wave="sine",volume=.045,slide=0){if(!soundEnabled)return;const ctx=audio();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;osc.type=wave;osc.frequency.setValueAtTime(freq,now);if(slide)osc.frequency.exponentialRampToValueAtTime(Math.max(60,freq+slide),now+duration);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(volume,now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+duration+.02)}
+function chime(){tone(660,.13,"sine",.035);setTimeout(()=>tone(880,.2,"sine",.03),95)}
+function softPop(){tone(420,.09,"triangle",.025,240)}
+function partySound(){tone(523,.18,"sine",.035);setTimeout(()=>tone(659,.18,"sine",.035),100);setTimeout(()=>tone(784,.28,"sine",.04),210)}
+soundButton.addEventListener("click",()=>{soundEnabled=!soundEnabled;soundButton.setAttribute("aria-pressed",String(soundEnabled));soundButton.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";if(soundEnabled){audio();chime()}});
+document.querySelector("#menu-grid").addEventListener("click",e=>{if(e.target.closest("[data-add]"))softPop()});
+document.querySelector("#open-cart").addEventListener("click",()=>{if(soundEnabled)tone(390,.09,"triangle",.025)});
+document.querySelector("#checkout").addEventListener("click",()=>{if(soundEnabled&&Object.keys(cart).length)partySound()});
+document.querySelector("#blow-candles").addEventListener("click",()=>{if(soundEnabled)partySound()});
+document.querySelector("#surprise").addEventListener("click",()=>{if(soundEnabled)chime()});
+document.querySelector("#booking-form").addEventListener("submit",()=>{if(soundEnabled)chime()});
