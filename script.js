@@ -107,3 +107,5 @@ soundButton.addEventListener("click",()=>{
   soundButton.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";
   if(soundEnabled){unlockSound()} 
 });
+
+document.querySelectorAll("[data-note]").forEach(card=>{card.addEventListener("click",()=>{const reveal=document.querySelector("#note-reveal");reveal.textContent=card.dataset.note;reveal.classList.add("show");reveal.scrollIntoView({behavior:"smooth",block:"nearest"});if(typeof chime==="function"&&soundEnabled)chime()})});
