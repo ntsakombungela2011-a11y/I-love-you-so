@@ -47,3 +47,70 @@ document.querySelector("#checkout").addEventListener("click",()=>{if(soundEnable
 document.querySelector("#blow-candles").addEventListener("click",()=>{if(soundEnabled)partySound()});
 document.querySelector("#surprise").addEventListener("click",()=>{if(soundEnabled)chime()});
 document.querySelector("#booking-form").addEventListener("submit",()=>{if(soundEnabled)chime()});
+
+
+// Replace cartoon menu icons with real food photography.
+const foodPhotos={
+  1:"https://images.unsplash.com/photo-1646186282205-7e419bc0c272?auto=format&fit=crop&w=900&q=85",
+  2:"https://images.unsplash.com/photo-1671106681075-5a7233268cbd?auto=format&fit=crop&w=900&q=85",
+  3:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  4:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  5:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  6:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  7:"https://images.unsplash.com/photo-1669121000748-c9f6cd940ef7?auto=format&fit=crop&w=900&q=85",
+  8:"https://images.unsplash.com/photo-1769434128978-5bdcb5c7ee2a?auto=format&fit=crop&w=900&q=85",
+  9:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  10:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  11:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  12:"https://images.unsplash.com/photo-1669121000748-c9f6cd940ef7?auto=format&fit=crop&w=900&q=85"
+};
+renderMenu=function(filter="all"){
+  grid.innerHTML=dishes.filter(d=>filter==="all"||d.category===filter).map(d=>`<article class="food-card"><div class="food-image"><img src="${foodPhotos[d.id]}" alt="${d.name}" loading="lazy"><small class="food-tag">${d.tag}</small></div><div class="food-info"><div class="food-title"><h3>${d.name}</h3><strong>${money(d.price)}</strong></div><p>${d.desc}</p><button class="add-button" data-add="${d.id}">Add to my tray +</button></div></article>`).join("");
+};
+renderMenu();
+
+// Try sound on arrival. Browsers may block it until the visitor interacts.
+soundEnabled=true;
+soundButton.setAttribute("aria-pressed","true");
+soundButton.textContent="♪ Sound on";
+let soundUnlocked=false;
+function unlockSound(){
+  if(soundUnlocked)return;
+  const ctx=audio();
+  if(ctx){
+    ctx.resume().then(()=>{
+      soundUnlocked=true;
+      soundButton.textContent="♪ Sound on";
+      partySound();
+    }).catch(()=>{soundButton.textContent="♪ Tap for sound"});
+  }
+}
+try{
+  const ctx=audio();
+  if(ctx && ctx.state==="running"){
+    soundUnlocked=true;
+    partySound();
+  }else{
+    soundButton.textContent="♪ Tap for sound";
+    document.addEventListener("pointerdown",unlockSound,{once:true});
+    document.addEventListener("keydown",unlockSound,{once:true});
+  }
+}catch(e){
+  soundButton.textContent="♪ Tap for sound";
+  document.addEventListener("pointerdown",unlockSound,{once:true});
+}
+soundButton.addEventListener("click",()=>{
+  if(!soundEnabled){
+    soundEnabled=true;
+    audio();
+    soundButton.setAttribute("aria-pressed","true");
+    soundButton.textContent="♪ Sound on";
+    partySound();
+  }else if(!soundUnlocked){
+    unlockSound();
+  }else{
+    soundEnabled=false;
+    soundButton.setAttribute("aria-pressed","false");
+    soundButton.textContent="♪ Sound off";
+  }
+});
