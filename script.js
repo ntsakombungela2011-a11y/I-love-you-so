@@ -53,15 +53,15 @@ document.querySelector("#booking-form").addEventListener("submit",()=>{if(soundE
 const foodPhotos={
   1:"https://images.unsplash.com/photo-1646186282205-7e419bc0c272?auto=format&fit=crop&w=900&q=85",
   2:"https://images.unsplash.com/photo-1671106681075-5a7233268cbd?auto=format&fit=crop&w=900&q=85",
-  3:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  3:"https://images.unsplash.com/photo-1551892374-ecf8754cf8b0?auto=format&fit=crop&w=900&q=85",
   4:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
-  5:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  5:"https://images.unsplash.com/photo-1676566399758-51b0d3927d48?auto=format&fit=crop&w=900&q=85",
   6:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
   7:"https://images.unsplash.com/photo-1669121000748-c9f6cd940ef7?auto=format&fit=crop&w=900&q=85",
   8:"https://images.unsplash.com/photo-1769434128978-5bdcb5c7ee2a?auto=format&fit=crop&w=900&q=85",
-  9:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
-  10:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
-  11:"https://images.unsplash.com/photo-1737012199412-ccf6a9270a5b?auto=format&fit=crop&w=900&q=85",
+  9:"https://api.awakening.bar/media/products/t/side-view-456de857-788c-4a1e-86fd-f989f27a99ca.jpg",
+  10:"https://api.awakening.bar/media/products/t/side-view-456de857-788c-4a1e-86fd-f989f27a99ca.jpg",
+  11:"https://images.unsplash.com/photo-1728691190582-3011e35efe45?auto=format&fit=crop&w=900&q=85",
   12:"https://images.unsplash.com/photo-1669121000748-c9f6cd940ef7?auto=format&fit=crop&w=900&q=85"
 };
 renderMenu=function(filter="all"){
@@ -99,18 +99,11 @@ try{
   soundButton.textContent="♪ Tap for sound";
   document.addEventListener("pointerdown",unlockSound,{once:true});
 }
+let soundToggleClicks=0;
 soundButton.addEventListener("click",()=>{
-  if(!soundEnabled){
-    soundEnabled=true;
-    audio();
-    soundButton.setAttribute("aria-pressed","true");
-    soundButton.textContent="♪ Sound on";
-    partySound();
-  }else if(!soundUnlocked){
-    unlockSound();
-  }else{
-    soundEnabled=false;
-    soundButton.setAttribute("aria-pressed","false");
-    soundButton.textContent="♪ Sound off";
-  }
+  soundToggleClicks++;
+  soundEnabled=soundToggleClicks%2===1;
+  soundButton.setAttribute("aria-pressed",String(soundEnabled));
+  soundButton.textContent=soundEnabled?"♪ Sound on":"♪ Sound off";
+  if(soundEnabled){unlockSound()} 
 });
