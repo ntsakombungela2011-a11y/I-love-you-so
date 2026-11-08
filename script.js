@@ -108,34 +108,48 @@ soundButton.addEventListener("click",()=>{
   if(soundEnabled){unlockSound()} 
 });
 
-const noteModal=document.querySelector("#note-modal");
-const noteTitle=document.querySelector("#note-modal-title");
-const noteMessage=document.querySelector("#note-modal-message");
-const noteLabel=document.querySelector("#note-modal-label");
-let lastNoteTrigger=null;
-function openNote(card){
-  lastNoteTrigger=card;
-  noteTitle.textContent=card.querySelector("strong").textContent;
-  noteMessage.textContent=card.dataset.note;
-  noteLabel.textContent=card.querySelector("span").textContent;
-  noteModal.classList.add("open");
-  noteModal.setAttribute("aria-hidden","false");
-  document.body.classList.add("note-modal-open");
-  if(soundEnabled)chime();
-  noteModal.querySelector(".note-modal-close").focus();
-}
-function closeNote(){
-  noteModal.classList.remove("open");
-  noteModal.setAttribute("aria-hidden","true");
-  document.body.classList.remove("note-modal-open");
-  if(lastNoteTrigger)lastNoteTrigger.focus();
-}
-// Delegation makes the entire coloured card reliably clickable.
-document.querySelector("#little-notes").addEventListener("click",event=>{
-  const card=event.target.closest(".note-card[data-note]");
-  if(card)openNote(card);
-});
-noteModal.querySelectorAll("[data-note-close]").forEach(button=>button.addEventListener("click",closeNote));
-document.addEventListener("keydown",event=>{
-  if(event.key==="Escape"&&noteModal.classList.contains("open"))closeNote();
-});
+// Reliable birthday interactions: direct button bindings, independent of section delegation.
+(function(){
+  const modal=document.getElementById("note-modal");
+  const cards=document.querySelectorAll(".note-card[data-note]");
+  if(modal){
+    const title=modal.querySelector("#note-modal-title");
+    const message=modal.querySelector("#note-modal-message");
+    const label=modal.querySelector("#note-modal-label");
+    function close(){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden","true");
+      document.body.classList.remove("note-modal-open");
+    }
+    cards.forEach(card=>{
+      card.type="button";
+      card.addEventListener("click",()=>{
+        title.textContent=card.querySelector("strong")?.textContent||"A little note";
+        message.textContent=card.dataset.note||"A little reminder, made just for you. ♡";
+        label.textContent=card.querySelector("span")?.textContent||"A LITTLE NOTE FOR YOU";
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden","false");
+        document.body.classList.add("note-modal-open");
+      });
+    });
+    modal.querySelectorAll("[data-note-close]").forEach(el=>el.addEventListener("click",close));
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal.classList.contains("open"))close()});
+  }
+  const surprise=document.getElementById("surprise");
+  const surpriseMessage=document.getElementById("surprise-message");
+  const wishes=[
+    "Your next year will be sprinkled with good things. ✨",
+    "You deserve the biggest slice. No arguments. 🍰",
+    "A surprise is looking for you. Keep being wonderful. 🎁",
+    "Today's forecast: 100% chance of cake. 🎂",
+    "Your birthday superpower is making people smile. 💖"
+  ];
+  if(surprise&&surpriseMessage){
+    surprise.onclick=()=>{
+      surpriseMessage.textContent=wishes[Math.floor(Math.random()*wishes.length)];
+      surpriseMessage.classList.add("show");
+      if(typeof confettiBurst==="function")confettiBurst(45);
+      if(typeof partySound==="function"&&soundEnabled)partySound();
+    };
+  }
+})();
